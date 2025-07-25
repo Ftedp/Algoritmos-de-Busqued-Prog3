@@ -31,6 +31,8 @@ Punto objetivo (4,4)
 Conectamos aristas entre nodos. Aristas= distancia euclidiana entre puntos
 '''
 from collections import deque
+import heapq
+import itertools
 
 class ProblemaLaberintoDiscreto:
     def __init__(self, laberinto, inicial, objetivo):
@@ -79,6 +81,37 @@ class Nodo:
             nodo = nodo.padre
         return list(reversed(camino))
 
+def heuristica_manhattan(estado, objetivo):
+    x1, y1 = estado
+    x2, y2 = objetivo
+    return abs(x1 - x2) + abs(y1 - y2)
+
+def a_estrella(problema):
+    nodo_inicial = Nodo(problema.estado_inicial())
+    frontera = []
+    contador = itertools.count()
+    heapq.heappush(frontera, (0, next(contador), nodo_inicial)) 
+    alcanzados = {nodo_inicial.estado: 0}
+
+    while frontera:
+        _,_, nodo = heapq.heappop(frontera)
+
+        if problema.test_objetivo(nodo.estado):
+            return nodo.obtener_camino()
+
+        for accion in problema.acciones(nodo.estado):
+            nuevo_estado = problema.resultado(nodo.estado, accion)
+            g = nodo.costo + problema.costo(nodo.estado, accion)
+            h = heuristica_manhattan(nuevo_estado, problema.objetivo)
+            f = g + h
+            
+            if nuevo_estado not in alcanzados or g < alcanzados[nuevo_estado]:
+                alcanzados[nuevo_estado] = g 
+                hijo = Nodo(nuevo_estado, nodo, accion, g)
+                heapq.heappush(frontera, (f, next(contador), hijo))
+        
+    return None
+    
 
 def graph_search(problema):
     n0 = Nodo(problema.estado_inicial())
@@ -102,21 +135,21 @@ def graph_search(problema):
     return None #si no encuentra sol.
 
 laberinto = [
-    [0,0,1,0,0],
-    [1,0,0,1,0],
-    [1,0,0,0,0],
-    [0,0,1,0,0],
-    [1,0,1,0,0],
-    [0,0,1,0,0]
+    [0,0,1,0,0,1,0],
+    [1,0,0,1,0,1,0],
+    [1,0,0,0,0,1,0],
+    [0,0,1,0,0,1,0],
+    [1,0,1,0,0,0,0],
+    [0,0,1,0,0,0,0]
 ]
 
 inicial = (0,0)
-objetivo = (4,4)
+objetivo = (5,5)
 
 problema = ProblemaLaberintoDiscreto(laberinto, inicial, objetivo)
 camino = graph_search(problema)
 
-print("✅ Solución encontrada:")
+print("✅ Solución encontrada con búsqueda de Grafo:")
 for i, (estado, accion) in enumerate(camino):
     if accion is None:
         print(f"Paso {i}: Inicio en {estado}")
@@ -124,4 +157,11 @@ for i, (estado, accion) in enumerate(camino):
         print(f"Paso {i}: Mover a {estado} desde {camino[i-1][0]}")
 
 
+camino = a_estrella(problema)
 
+print(" Solución encontrada con A* más heuristica de Manhattan:")
+for i, (estado, accion) in enumerate(camino):
+    if accion is None:
+        print(f"Paso {i}: Inicio en {estado}")
+    else:
+        print(f"Paso {i}: Mover a {estado} desde {camino[i-1][0]}")
