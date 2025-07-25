@@ -135,33 +135,37 @@ def graph_search(problema):
     return None #si no encuentra sol.
 
 laberinto = [
-    [0,0,1,0,0,1,0],
-    [1,0,0,1,0,1,0],
-    [1,0,0,0,0,1,0],
-    [0,0,1,0,0,1,0],
-    [1,0,1,0,0,0,0],
-    [0,0,1,0,0,0,0]
+    [0,0,1,0,0,0,0,0],
+    [1,0,0,1,0,1,1,1],
+    [1,0,0,0,0,1,0,0],
+    [0,0,1,0,0,1,0,1],
+    [1,1,1,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0]
 ]
 
 inicial = (0,0)
-objetivo = (5,5)
+objetivo = (5,7)
 
 problema = ProblemaLaberintoDiscreto(laberinto, inicial, objetivo)
-camino = graph_search(problema)
+camino_grafo = graph_search(problema)
 
 print("✅ Solución encontrada con búsqueda de Grafo:")
-for i, (estado, accion) in enumerate(camino):
+for i, paso in enumerate(camino_grafo):
+    estado, accion = paso
     if accion is None:
         print(f"Paso {i}: Inicio en {estado}")
     else:
-        print(f"Paso {i}: Mover a {estado} desde {camino[i-1][0]}")
+        print(f"Paso {i}: Mover a {estado} desde {camino_grafo[i-1][0]}")
 
 
-camino = a_estrella(problema)
 
-print(" Solución encontrada con A* más heuristica de Manhattan:")
-for i, (estado, accion) in enumerate(camino):
+camino_estrella = a_estrella(problema)
+
+print("✅ Solución encontrada con A* y heurística:")
+for i, paso in enumerate(camino_estrella):
+    estado, accion = paso
     if accion is None:
         print(f"Paso {i}: Inicio en {estado}")
     else:
-        print(f"Paso {i}: Mover a {estado} desde {camino[i-1][0]}")
+        print(f"Paso {i}: Mover a {estado} desde {camino_estrella[i-1][0]}")
+
