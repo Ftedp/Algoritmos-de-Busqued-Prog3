@@ -92,9 +92,12 @@ def a_estrella(problema):
     contador = itertools.count()
     heapq.heappush(frontera, (0, next(contador), nodo_inicial)) 
     alcanzados = {nodo_inicial.estado: 0}
+    i = 0
 
     while frontera:
         _,_, nodo = heapq.heappop(frontera)
+        i += 1
+        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | movimiento {i}")
 
         if problema.test_objetivo(nodo.estado):
             return nodo.obtener_camino()
@@ -117,9 +120,12 @@ def graph_search(problema):
     n0 = Nodo(problema.estado_inicial())
     frontera = deque([n0])
     alcanzados = set([n0.estado])
+    i = 0
 
     while frontera:
         nodo = frontera.popleft()
+        i += 1
+        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | movimiento {i}")
     
         if problema.test_objetivo(nodo.estado):
             return nodo.obtener_camino()
@@ -147,25 +153,10 @@ inicial = (0,0)
 objetivo = (5,7)
 
 problema = ProblemaLaberintoDiscreto(laberinto, inicial, objetivo)
+
 camino_grafo = graph_search(problema)
-
-print("✅ Solución encontrada con búsqueda de Grafo:")
-for i, paso in enumerate(camino_grafo):
-    estado, accion = paso
-    if accion is None:
-        print(f"Paso {i}: Inicio en {estado}")
-    else:
-        print(f"Paso {i}: Mover a {estado} desde {camino_grafo[i-1][0]}")
-
-
+print("\n\n---------------------------------------------------------------------\n\n")
 
 camino_estrella = a_estrella(problema)
 
-print("✅ Solución encontrada con A* y heurística:")
-for i, paso in enumerate(camino_estrella):
-    estado, accion = paso
-    if accion is None:
-        print(f"Paso {i}: Inicio en {estado}")
-    else:
-        print(f"Paso {i}: Mover a {estado} desde {camino_estrella[i-1][0]}")
 
