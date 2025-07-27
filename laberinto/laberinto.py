@@ -29,6 +29,18 @@ Usamos como nodos del grafo:
 Punto inicial (0,4)
 Punto objetivo (4,4)
 Conectamos aristas entre nodos. Aristas= distancia euclidiana entre puntos
+
+Soluciones Informadas y no Informadas:
+En graph_search:
+-Usás una cola (BFS: FIFO) o una pila (DFS: LIFO)
+-No hay evaluación de costo: se expande simplemente por orden de inserción
+En A*/GBFS/UCS:
+-Usás una cola de prioridad (heapq)
+-Cada nodo tiene un valor numérico (prioridad)
+-Se elige el nodo con menor prioridad numérica:
+--> A* → menor f = g + h
+--> GBFS → menor h
+--> UCS → menor g
 '''
 from collections import deque
 import heapq
@@ -87,7 +99,7 @@ def heuristica_manhattan(estado, objetivo):
     x2, y2 = objetivo
     return abs(x1 - x2) + abs(y1 - y2)
 
-# A* costo total(f(n) = g(n) + h(n)) 
+# A* costo total(f(n) = g(n) + h(n)) (suma distancia al objetivo y costo real al mismo tiempo)
 def a_estrella(problema):
     nodo_inicial = Nodo(problema.estado_inicial())
     frontera = []
@@ -116,7 +128,7 @@ def a_estrella(problema):
         
     return None
 
-# Uniform Cost Search (Costo acumulado g(n))
+# Uniform Cost Search (Costo acumulado g(n)) (expande lo más barato primero)
 def ucs(problema):
     nodo_inicial = Nodo(problema.estado_inicial())
     frontera = []
@@ -142,7 +154,7 @@ def ucs(problema):
     
     return None
 
-# Greedy Best First Search (heurística h(n)) -> estimación del costo objetivo
+# Greedy Best First Search (heurística h(n)) -> estimación del costo objetivo  (elige el que “parece más cerca”)
 def gbfs(problema):
     nodo_inicial = Nodo(problema.estado_inicial())
     frontera = []
@@ -171,7 +183,7 @@ def gbfs(problema):
 
     return None
 
-# Deep First Search
+# Deep First Search (FIFO/Cola) sin evaluación de costo.
 def graph_search(problema):
     n0 = Nodo(problema.estado_inicial())
     frontera = deque([n0])
