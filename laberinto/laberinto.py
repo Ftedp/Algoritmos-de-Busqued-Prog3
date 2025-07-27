@@ -96,9 +96,8 @@ def a_estrella(problema):
 
     while frontera:
         _,_, nodo = heapq.heappop(frontera)
+        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | paso {i}")
         i += 1
-        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | movimiento {i}")
-
         if problema.test_objetivo(nodo.estado):
             return nodo.obtener_camino()
 
@@ -114,7 +113,60 @@ def a_estrella(problema):
                 heapq.heappush(frontera, (f, next(contador), hijo))
         
     return None
+
+
+def ucs(problema):
+    nodo_inicial = Nodo(problema.estado_inicial())
+    frontera = []
+    contador = itertools.count()
+    heapq.heappush(frontera, (0, next(contador), nodo_inicial))
+    alcanzados = {nodo_inicial.estado: 0}
+    i = 0
+    while frontera:
+        _,_, nodo = heapq.heappop(frontera)
+        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | paso {i}")
+        i += 1
+        if problema.test_objetivo(nodo.estado):
+            return nodo.obtener_camino
+
+        for accion in problema.acciones(nodo.estado):
+            nuevo_estado = problema.resultado(nodo.estado, accion)
+            g = nodo.costo + problema.costo(nodo.estado, accion)
+
+            if nuevo_estado not in alcanzados or g < alcanzados[nuevo_estado]:
+                alcanzados[nuevo_estado] = g 
+                hijo = Nodo(nuevo_estado, nodo, accion, g)
+                heapq.heappush(frontera, (g, next(contador), hijo))
     
+    return None
+    
+def gbfs(problema):
+    nodo_inicial = Nodo(problema.estado_inicial())
+    frontera = []
+    contador = itertools.count()
+    h = heuristica_manhattan(nodo_inicial.estado, problema.objetivo)
+    heapq.heappush(frontera, (h, next(contador), nodo_inicial))
+    alcanzados = set()
+    i = 0
+    while frontera:
+        _,_, nodo = heapq.heappop(frontera)
+        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | paso {i}")
+        i += 1
+        if problema.test_objetivo(nodo.estado):
+            return nodo.obtener_camino()
+
+        if nodo.estado in alcanzados:
+            continue
+        alcanzados.add(nodo.estado)
+
+        for accion in problema.acciones(nodo.estado):
+            nuevo_estado = problema.resultado(nodo.estado, accion)
+            hijo = Nodo(nuevo_estado, nodo, accion, nodo.costo + problema.costo(nodo.estado, accion))
+            h = heuristica_manhattan(nuevo_estado, problema.objetivo)
+            heapq.heappush(frontera, (h, next(contador), hijo))
+
+    return None
+
 
 def graph_search(problema):
     n0 = Nodo(problema.estado_inicial())
@@ -124,9 +176,8 @@ def graph_search(problema):
 
     while frontera:
         nodo = frontera.popleft()
+        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | {i}")
         i += 1
-        print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | movimiento {i}")
-    
         if problema.test_objetivo(nodo.estado):
             return nodo.obtener_camino()
 
@@ -142,21 +193,28 @@ def graph_search(problema):
 
 laberinto = [
     [0,0,1,0,0,0,0,0],
-    [1,0,0,1,0,1,1,1],
+    [1,0,0,1,0,1,0,1],
     [1,0,0,0,0,1,0,0],
-    [0,0,1,0,0,1,0,1],
-    [1,1,1,0,0,0,0,0],
-    [0,0,0,0,1,0,0,0]
+    [0,0,1,1,0,1,0,0],
+    [0,1,1,0,0,0,1,0],
+    [0,0,0,0,1,0,1,0],
+    [0,1,1,0,1,0,0,0],
+    [0,0,0,0,0,0,0,0]
 ]
 
 inicial = (0,0)
-objetivo = (5,7)
+objetivo = (7,7)
 
 problema = ProblemaLaberintoDiscreto(laberinto, inicial, objetivo)
 
+print("Búsqueda de Grafo:\n")
 camino_grafo = graph_search(problema)
 print("\n\n---------------------------------------------------------------------\n\n")
-
+print("Búsqueda de A*:\n")
 camino_estrella = a_estrella(problema)
-
-
+print("\n\n---------------------------------------------------------------------\n\n")
+print("Búsqueda de UCS:\n")
+camino_ucs = ucs(problema)
+print("\n\n---------------------------------------------------------------------\n\n")
+print("Búsqueda de Greddy Best First Search:\n")
+camino_greedy = gbfs(problema)
