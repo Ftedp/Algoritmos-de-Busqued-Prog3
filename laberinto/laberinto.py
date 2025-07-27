@@ -81,11 +81,13 @@ class Nodo:
             nodo = nodo.padre
         return list(reversed(camino))
 
+# Distancia de Manhattan
 def heuristica_manhattan(estado, objetivo):
     x1, y1 = estado
     x2, y2 = objetivo
     return abs(x1 - x2) + abs(y1 - y2)
 
+# A* costo total(f(n) = g(n) + h(n)) 
 def a_estrella(problema):
     nodo_inicial = Nodo(problema.estado_inicial())
     frontera = []
@@ -103,18 +105,18 @@ def a_estrella(problema):
 
         for accion in problema.acciones(nodo.estado):
             nuevo_estado = problema.resultado(nodo.estado, accion)
-            g = nodo.costo + problema.costo(nodo.estado, accion)
-            h = heuristica_manhattan(nuevo_estado, problema.objetivo)
-            f = g + h
+            g = nodo.costo + problema.costo(nodo.estado, accion) # costo real
+            h = heuristica_manhattan(nuevo_estado, problema.objetivo) # distancia sobre estimada al objetivo
+            f = g + h # costo real
             
             if nuevo_estado not in alcanzados or g < alcanzados[nuevo_estado]:
                 alcanzados[nuevo_estado] = g 
                 hijo = Nodo(nuevo_estado, nodo, accion, g)
-                heapq.heappush(frontera, (f, next(contador), hijo))
+                heapq.heappush(frontera, (f, next(contador), hijo)) # cola de prioridad que utiliza costo total y desempata con el contador.
         
     return None
 
-
+# Uniform Cost Search (Costo acumulado g(n))
 def ucs(problema):
     nodo_inicial = Nodo(problema.estado_inicial())
     frontera = []
@@ -131,7 +133,7 @@ def ucs(problema):
 
         for accion in problema.acciones(nodo.estado):
             nuevo_estado = problema.resultado(nodo.estado, accion)
-            g = nodo.costo + problema.costo(nodo.estado, accion)
+            g = nodo.costo + problema.costo(nodo.estado, accion) # costo acumulado
 
             if nuevo_estado not in alcanzados or g < alcanzados[nuevo_estado]:
                 alcanzados[nuevo_estado] = g 
@@ -139,7 +141,8 @@ def ucs(problema):
                 heapq.heappush(frontera, (g, next(contador), hijo))
     
     return None
-    
+
+# Greedy Best First Search (heurística h(n)) -> estimación del costo objetivo
 def gbfs(problema):
     nodo_inicial = Nodo(problema.estado_inicial())
     frontera = []
@@ -148,6 +151,7 @@ def gbfs(problema):
     heapq.heappush(frontera, (h, next(contador), nodo_inicial))
     alcanzados = set()
     i = 0
+
     while frontera:
         _,_, nodo = heapq.heappop(frontera)
         print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | paso {i}")
@@ -162,12 +166,12 @@ def gbfs(problema):
         for accion in problema.acciones(nodo.estado):
             nuevo_estado = problema.resultado(nodo.estado, accion)
             hijo = Nodo(nuevo_estado, nodo, accion, nodo.costo + problema.costo(nodo.estado, accion))
-            h = heuristica_manhattan(nuevo_estado, problema.objetivo)
-            heapq.heappush(frontera, (h, next(contador), hijo))
+            h = heuristica_manhattan(nuevo_estado, problema.objetivo) # distancia sobre estimada al objetivo
+            heapq.heappush(frontera, (h, next(contador), hijo)) #-> Cola de prioridad compara la heurística, y desempada con el contador.
 
     return None
 
-
+# Deep First Search
 def graph_search(problema):
     n0 = Nodo(problema.estado_inicial())
     frontera = deque([n0])
@@ -178,6 +182,7 @@ def graph_search(problema):
         nodo = frontera.popleft()
         print(f"🧩 Expandiendo: Nodo {nodo.estado} | costo {nodo.costo} | accion {nodo.accion} | {i}")
         i += 1
+
         if problema.test_objetivo(nodo.estado):
             return nodo.obtener_camino()
 
