@@ -20,7 +20,7 @@ class juego_pilas:
        self.inicial = estado_inicial
 
     def jugador(self, estado):
-       return "MAX" if len(estado) % 2 == 1 else "MIN" # Cantidad impar de pilas juega MAX, sino MIN
+        return "Turno: MAX" if len(estado) % 2 == 1 else "Turno: MIN" # Cantidad impar de pilas juega MAX, sino MIN
 
     def acciones(self, estado):
         acciones_posibles = []
@@ -46,21 +46,23 @@ class juego_pilas:
 
 def minimax(estado, juego, profundidad=0):
     if juego.es_terminal(estado):
+        utilidad = juego.utilidad(estado)
+        print("---" * profundidad + f"📦 Estado terminal {estado} → utilidad = {utilidad}")
         return juego.utilidad(estado)
 
     jugador = juego.jugador(estado)
+    print("---" * profundidad + f"🔍 {jugador} analiza {estado}")
     utilidades = []
 
-#obtenemos un nuevo_estado por cada accion posible aplicada sobre el estado actual.
     for accion in juego.acciones(estado): 
         nuevo_estado = juego.resultado(estado, accion) 
+        print("---" * profundidad + f"> Acción: {accion} → {nuevo_estado}")
         valor = minimax(nuevo_estado, juego, profundidad + 1)
         utilidades.append(valor)
 
-    if jugador == "MAX":
-        return max(utilidades)
-    else:
-        return min(utilidades)
+    resultado = max(utilidades) if jugador == "MAX" else min(utilidades)
+    print("---" * profundidad + f" {jugador} pila {estado} → valor = {resultado}<----end")
+    return resultado
 
 
 juego = juego_pilas([7])
@@ -70,7 +72,3 @@ if ganador == 1:
     print("🏆 Gana MAX si ambos juegan óptimamente.")
 else:
     print("🏆 Gana MIN si ambos juegan óptimamente.")
-
-#que son las utilidades?
-# que es un nuevo_estado? Sería algo como un nuevo nodo?
-#que son el 7 en juego_pilas([7]) y que es el 7 en minimax([7], juego)
