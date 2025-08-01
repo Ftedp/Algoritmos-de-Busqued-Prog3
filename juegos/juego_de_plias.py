@@ -14,6 +14,7 @@ Juego de las pilas
  2. Aplicar el algoritmo minimax para decidir quién gana si ambos juegan
  óptimamente.
  """
+from typing import Any, Dict
 
 class juego_pilas:
     def __init__(self, estado_inicial):
@@ -27,8 +28,9 @@ class juego_pilas:
         for i, pila in enumerate(estado): # i es el indice de la pila
             for j in range(1, pila): # intentamos partir en j y pila-j
                 k = pila - j
-                if j != k and j > 0 and k > 0 and j > k: 
-                    acciones_posibles.append((i,j,k))
+                if j != k:
+                    a, b = max(j, k), min(j, k)
+                    acciones_posibles.append((i, a, b))
         return acciones_posibles
 
     def resultado(self, estado, accion):
@@ -37,39 +39,60 @@ class juego_pilas:
         return nuevo_estado
 
     def es_terminal(self, estado):
-        return all(pila in (1, 2) for pila in estado) # True si todas las pilas son de 1 o 2 ladrillos.
+        return all(pila <= 2 for pila in estado) # True si todas las pilas son de 1 o 2 ladrillos.
     
-    def utilidad(self, estado):
+    def utilidad(self, estado, jugador):
         if not self.es_terminal(estado):
             return None
-        return 1 if self.jugador(estado) == "MIN" else 0
+        return 1 if self.jugador(estado) != jugador else 0
 
-def minimax(estado, juego, profundidad=0):
-    if juego.es_terminal(estado):
-        utilidad = juego.utilidad(estado)
-        print("---" * profundidad + f"📦 Estado terminal {estado} → utilidad = {utilidad}")
-        return juego.utilidad(estado)
 
-    jugador = juego.jugador(estado)
-    print("---" * profundidad + f"🔍 {jugador} analiza {estado}")
-    utilidades = []
+def minimax(problema: juego_pilas, estado: list[int]) -> Any:
+    jugador = problema.jugador(estado)
 
-    for accion in juego.acciones(estado): 
-        nuevo_estado = juego.resultado(estado, accion) 
-        print("---" * profundidad + f"> Acción: {accion} → {nuevo_estado}")
-        valor = minimax(nuevo_estado, juego, profundidad + 1)
-        utilidades.append(valor)
+    if jugador == "MAX":
+        sucs: Dict[Any, int] = {
+            accion: minimax_min(problema, problema.resultado(estado, accion))
+            for accion in problema.acciones(estado)
+        }
+        return max(sucs, keys=sucs.get)
+    else: # jugador == "MIN"
+        sucs: Dict[Any, int] = {
+            accion: minimax_max(problema, problema.resultado(estado, accion))
+            for accion in problema.acciones(estado)
+    }
 
-    resultado = max(utilidades) if jugador == "MAX" else min(utilidades)
-    print("---" * profundidad + f" {jugador} pila {estado} → valor = {resultado}<----end")
-    return resultado
+    return min(sucs, key=sucs.get)
 
+
+def minimax_max(problema: juego_pilas, estado: list[int]) -> int:
+    if problema.es_terminal(estado):
+        return problema.utilidad(estado, "MAX")
+
+    valor = float("-inf")
+    for accion in problema.acciones(estado):
+        sucesor = problema.resultado(estado, accion)
+        valor = max(valor, minimax_min(problema, sucesor))
+
+    return valor
+    
+
+def minimax_min(problema: juego_pilas, estado: list[int]) -> int:
+    if problema.es_terminal(estado):
+        return problema.utilidad(estado, "MAX")
+
+    valor = float("inf")
+    for accion in problema.acciones(estado):
+        sucesor = problema.resultado(estado, accion)
+        valor = min(valor, minimax_max(problema, sucesor))
+
+    return valor
 
 
 juego = juego_pilas([5,5])
-ganador = minimax([5,5], juego)
+accion_optima = minimax(juego, [5,5])
 
-if ganador == 1:
+if accion_optima == 1:
     print("🏆 Gana MAX si ambos juegan óptimamente.")
 else:
     print("🏆 Gana MIN si ambos juegan óptimamente.")
