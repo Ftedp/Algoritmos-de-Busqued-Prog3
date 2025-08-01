@@ -65,8 +65,9 @@ def minimax(estado, juego, profundidad=0):
     return resultado
 
 
-juego = juego_pilas([7])
-ganador = minimax([7], juego)
+
+juego = juego_pilas([5,5])
+ganador = minimax([5,5], juego)
 
 if ganador == 1:
     print("🏆 Gana MAX si ambos juegan óptimamente.")
