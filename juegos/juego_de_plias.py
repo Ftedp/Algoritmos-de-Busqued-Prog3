@@ -21,7 +21,7 @@ class juego_pilas:
        self.inicial = estado_inicial
 
     def jugador(self, estado):
-        return "Turno: MAX" if len(estado) % 2 == 1 else "Turno: MIN" # Cantidad impar de pilas juega MAX, sino MIN
+        return "MAX" if len(estado) % 2 == 1 else "MIN" # Cantidad impar de pilas juega MAX, sino MIN
 
     def acciones(self, estado):
         acciones_posibles = []
@@ -70,6 +70,7 @@ def minimax_max(problema: juego_pilas, estado: list[int]) -> int:
         return problema.utilidad(estado, "MAX")
 
     valor = float("-inf")
+
     for accion in problema.acciones(estado):
         sucesor = problema.resultado(estado, accion)
         valor = max(valor, minimax_min(problema, sucesor))
@@ -82,6 +83,8 @@ def minimax_min(problema: juego_pilas, estado: list[int]) -> int:
         return problema.utilidad(estado, "MAX")
 
     valor = float("inf")
+    
+    # por cada accion posible generamos el estado sucesor y  Llama recursivamente a minimax_min sobre el sucesor
     for accion in problema.acciones(estado):
         sucesor = problema.resultado(estado, accion)
         valor = min(valor, minimax_max(problema, sucesor))
