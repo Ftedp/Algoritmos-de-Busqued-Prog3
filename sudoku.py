@@ -5,7 +5,9 @@ sudoku = csp.Problem()
 
 # Paso 2️⃣: Definir variables y dominios
 variables = [i * 10 + j for i in range(1,10) for j in range(1,10)]
-variables_fijadas = {13:4, 14:7, 15:5, 19:3,\
+
+# Tablero inicial:
+variables_fijadas = {13:4, 14:7, 15:5, 19:3,\ 
                      26:8, 27:4,\
                      35:6, 38:7, 39:5,\
                      41:6, 42:3, 47:5,\
@@ -44,5 +46,8 @@ for i in range(1,10,3): # Definimos todas las cajas
 # Paso 5️⃣: Resolver el problema
 solver = csp.BacktrackingSolver()
 sudoku.setSolver(solver)
-sol =sudoku.getSolution()
-print(sol)
+sol = sudoku.getSolution()
+for i in range(1,10):
+    fila = [sol[i*10 + j] for j in range(1,10)]
+    print(fila)
+
